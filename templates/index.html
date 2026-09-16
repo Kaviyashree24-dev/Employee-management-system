@@ -1,0 +1,1158 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Employee Management System</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- =========================
+         SIDEBAR
+    ========================== -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                EM
+            </div>
+
+            <div>
+                <h1>EmployeeHub</h1>
+                <span>Management System</span>
+            </div>
+
+        </div>
+
+
+        <nav class="nav">
+
+            <button
+                class="nav-item active"
+                data-section="dashboard">
+
+                <span>⌂</span>
+                Dashboard
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-section="employees">
+
+                <span>♙</span>
+                Employees
+
+            </button>
+
+        </nav>
+
+
+        <!-- No Skill Vault / VSB text -->
+
+        <div class="sidebar-footer">
+
+            <div class="college-badge">
+                EM
+            </div>
+
+            <div>
+                <strong>EmployeeHub</strong>
+                <small>Employee Management System</small>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================== -->
+
+    <main class="main-content">
+
+
+        <!-- TOP BAR -->
+
+        <header class="topbar">
+
+            <button
+                class="mobile-menu"
+                id="mobileMenu">
+
+                ☰
+
+            </button>
+
+
+            <div>
+
+                <p class="eyebrow">
+                    Human Resources
+                </p>
+
+                <h2 id="pageTitle">
+                    Dashboard
+                </h2>
+
+            </div>
+
+
+            <button
+                class="primary-btn"
+                id="topAddBtn">
+
+                ＋ Add Employee
+
+            </button>
+
+        </header>
+
+
+
+        <!-- =========================
+             DASHBOARD SECTION
+        ========================== -->
+
+        <section
+            id="dashboardSection"
+            class="page-section">
+
+
+            <!-- WELCOME CARD -->
+
+            <div class="welcome-card">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Employee Administration
+                    </p>
+
+                    <h3>
+                        Manage your workforce with confidence.
+                    </h3>
+
+                    <p>
+                        Maintain employee records, monitor workforce
+                        statistics, and keep organizational information
+                        up to date.
+                    </p>
+
+                </div>
+
+
+                <button
+                    class="light-btn"
+                    id="dashboardAddBtn">
+
+                    Add New Employee
+
+                </button>
+
+            </div>
+
+
+
+            <!-- STATISTICS -->
+
+            <div class="stats-grid">
+
+
+                <div class="stat-card">
+
+                    <div class="stat-symbol blue">
+                        EM
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Total Employees
+                        </span>
+
+                        <strong id="totalEmployees">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="stat-card">
+
+                    <div class="stat-symbol purple">
+                        DP
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Departments
+                        </span>
+
+                        <strong id="totalDepartments">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="stat-card">
+
+                    <div class="stat-symbol green">
+                        AC
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Active Employees
+                        </span>
+
+                        <strong id="activeEmployees">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="stat-card">
+
+                    <div class="stat-symbol orange">
+                        LV
+                    </div>
+
+                    <div>
+
+                        <span>
+                            On Leave
+                        </span>
+
+                        <strong id="leaveEmployees">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- RECENT EMPLOYEES -->
+
+            <div class="content-card">
+
+                <div class="card-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            Latest Records
+                        </p>
+
+                        <h3>
+                            Recent Employees
+                        </h3>
+
+                    </div>
+
+
+                    <button
+                        class="text-btn"
+                        id="viewAllBtn">
+
+                        View all employees →
+
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="recentEmployees"
+                    class="recent-list">
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             EMPLOYEES SECTION
+        ========================== -->
+
+        <section
+            id="employeesSection"
+            class="page-section hidden">
+
+
+            <!-- PAGE INTRO -->
+
+            <div class="page-intro">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Employee Records
+                    </p>
+
+                    <h3>
+                        All Employees
+                    </h3>
+
+                    <p>
+                        Search, filter, view, edit, or delete
+                        employee records.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- TOOLBAR -->
+
+            <div class="toolbar">
+
+
+                <!-- SEARCH -->
+
+                <div class="search-box">
+
+                    <span>
+                        ⌕
+                    </span>
+
+                    <input
+                        id="searchInput"
+                        type="search"
+                        placeholder="Search ID, name, email, designation...">
+
+                </div>
+
+
+
+                <!-- DEPARTMENT FILTER -->
+
+                <select id="departmentFilter">
+
+                    <option value="">
+                        All Departments
+                    </option>
+
+                </select>
+
+
+
+                <!-- EMPLOYMENT TYPE -->
+
+                <select id="typeFilter">
+
+                    <option value="">
+                        All Employment Types
+                    </option>
+
+                    <option>
+                        Full Time
+                    </option>
+
+                    <option>
+                        Part Time
+                    </option>
+
+                    <option>
+                        Contract
+                    </option>
+
+                    <option>
+                        Intern
+                    </option>
+
+                </select>
+
+
+
+                <!-- STATUS -->
+
+                <select id="statusFilter">
+
+                    <option value="">
+                        All Status
+                    </option>
+
+                    <option>
+                        Active
+                    </option>
+
+                    <option>
+                        On Leave
+                    </option>
+
+                    <option>
+                        Inactive
+                    </option>
+
+                </select>
+
+
+
+                <!-- SORT -->
+
+                <select id="sortSelect">
+
+                    <option value="newest">
+                        Newest First
+                    </option>
+
+                    <option value="name">
+                        Name A–Z
+                    </option>
+
+                    <option value="salaryHigh">
+                        Salary High–Low
+                    </option>
+
+                    <option value="salaryLow">
+                        Salary Low–High
+                    </option>
+
+                </select>
+
+
+
+                <!-- CLEAR -->
+
+                <button
+                    class="secondary-btn"
+                    id="clearFiltersBtn">
+
+                    Clear
+
+                </button>
+
+            </div>
+
+
+
+            <!-- MESSAGE AREA -->
+
+            <div
+                id="messageArea"
+                aria-live="polite">
+            </div>
+
+
+
+            <!-- EMPLOYEE TABLE -->
+
+            <div class="content-card table-card">
+
+
+                <!-- LOADING -->
+
+                <div
+                    id="loadingState"
+                    class="state-box">
+
+                    <div class="spinner"></div>
+
+                    <p>
+                        Loading employee records...
+                    </p>
+
+                </div>
+
+
+
+                <!-- EMPTY STATE -->
+
+                <div
+                    id="emptyState"
+                    class="state-box hidden">
+
+
+                    <div class="empty-icon">
+                        ◎
+                    </div>
+
+
+                    <h4>
+                        No employees found
+                    </h4>
+
+
+                    <p>
+                        Try changing your search or filters,
+                        or add a new employee.
+                    </p>
+
+
+                    <button
+                        class="primary-btn"
+                        id="emptyAddBtn">
+
+                        Add Employee
+
+                    </button>
+
+                </div>
+
+
+
+                <!-- TABLE -->
+
+                <div
+                    class="table-wrap hidden"
+                    id="tableWrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Employee
+                                </th>
+
+                                <th>
+                                    Email
+                                </th>
+
+                                <th>
+                                    Department
+                                </th>
+
+                                <th>
+                                    Designation
+                                </th>
+
+                                <th>
+                                    Type
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Salary
+                                </th>
+
+                                <th>
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody
+                            id="employeeTableBody">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+
+<!-- =========================
+     ADD / EDIT EMPLOYEE MODAL
+========================== -->
+
+<div
+    class="modal-overlay hidden"
+    id="employeeModal">
+
+
+    <div class="modal large-modal">
+
+
+        <!-- MODAL HEADER -->
+
+        <div class="modal-header">
+
+            <div>
+
+                <p
+                    class="eyebrow"
+                    id="formEyebrow">
+
+                    Create Record
+
+                </p>
+
+                <h3 id="modalTitle">
+                    Add Employee
+                </h3>
+
+            </div>
+
+
+            <button
+                class="icon-btn"
+                data-close="employeeModal">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+
+        <!-- FORM -->
+
+        <form
+            id="employeeForm"
+            novalidate>
+
+
+            <input
+                type="hidden"
+                id="employeeDbId">
+
+
+            <div class="form-grid">
+
+
+                <!-- EMPLOYEE ID -->
+
+                <div class="field">
+
+                    <label>
+                        Employee ID
+                        <span>*</span>
+                    </label>
+
+                    <input
+                        id="employeeId"
+                        maxlength="20"
+                        placeholder="e.g. EMP1009"
+                        required>
+
+                    <small
+                        id="employeeIdError">
+                    </small>
+
+                </div>
+
+
+
+                <!-- EMPLOYEE NAME -->
+
+                <div class="field">
+
+                    <label>
+                        Employee Name
+                        <span>*</span>
+                    </label>
+
+                    <input
+                        id="employeeName"
+                        maxlength="100"
+                        placeholder="Enter full name"
+                        required>
+
+                    <small
+                        id="employeeNameError">
+                    </small>
+
+                </div>
+
+
+
+                <!-- EMAIL -->
+
+                <div class="field">
+
+                    <label>
+                        Email
+                        <span>*</span>
+                    </label>
+
+                    <input
+                        id="email"
+                        type="email"
+                        placeholder="employee@company.com"
+                        required>
+
+                    <small
+                        id="emailError">
+                    </small>
+
+                </div>
+
+
+
+                <!-- PHONE -->
+
+                <div class="field">
+
+                    <label>
+                        Phone Number
+                        <span>*</span>
+                    </label>
+
+                    <input
+                        id="phoneNumber"
+                        type="tel"
+                        inputmode="numeric"
+                        maxlength="10"
+                        placeholder="10-digit number"
+                        required>
+
+                    <small
+                        id="phoneNumberError">
+                    </small>
+
+                </div>
+
+
+
+                <!-- DEPARTMENT -->
+
+                <div class="field">
+
+                    <label>
+                        Department
+                        <span>*</span>
+                    </label>
+
+                    <select
+                        id="department"
+                        required>
+
+                        <option value="">
+                            Select Department
+                        </option>
+
+                        <option>
+                            Engineering
+                        </option>
+
+                        <option>
+                            Human Resources
+                        </option>
+
+                        <option>
+                            Finance
+                        </option>
+
+                        <option>
+                            Marketing
+                        </option>
+
+                        <option>
+                            Operations
+                        </option>
+
+                        <option>
+                            Information Technology
+                        </option>
+
+                        <option>
+                            Sales
+                        </option>
+
+                        <option>
+                            Administration
+                        </option>
+
+                    </select>
+
+                    <small
+                        id="departmentError">
+                    </small>
+
+                </div>
+
+
+
+                <!-- DESIGNATION -->
+
+                <div class="field">
+
+                    <label>
+                        Designation
+                        <span>*</span>
+                    </label>
+
+                    <input
+                        id="designation"
+                        maxlength="100"
+                        placeholder="e.g. Software Engineer"
+                        required>
+
+                    <small
+                        id="designationError">
+                    </small>
+
+                </div>
+
+
+
+                <!-- EMPLOYMENT TYPE -->
+
+                <div class="field">
+
+                    <label>
+                        Employment Type
+                        <span>*</span>
+                    </label>
+
+                    <select
+                        id="employmentType"
+                        required>
+
+                        <option value="">
+                            Select Type
+                        </option>
+
+                        <option>
+                            Full Time
+                        </option>
+
+                        <option>
+                            Part Time
+                        </option>
+
+                        <option>
+                            Contract
+                        </option>
+
+                        <option>
+                            Intern
+                        </option>
+
+                    </select>
+
+                    <small
+                        id="employmentTypeError">
+                    </small>
+
+                </div>
+
+
+
+                <!-- JOINING DATE -->
+
+                <div class="field">
+
+                    <label>
+                        Joining Date
+                        <span>*</span>
+                    </label>
+
+                    <input
+                        id="joiningDate"
+                        type="date"
+                        required>
+
+                    <small
+                        id="joiningDateError">
+                    </small>
+
+                </div>
+
+
+
+                <!-- SALARY -->
+
+                <div class="field">
+
+                    <label>
+                        Salary
+                        <span>*</span>
+                    </label>
+
+                    <input
+                        id="salary"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="e.g. 45000"
+                        required>
+
+                    <small
+                        id="salaryError">
+                    </small>
+
+                </div>
+
+
+
+                <!-- STATUS -->
+
+                <div class="field">
+
+                    <label>
+                        Status
+                        <span>*</span>
+                    </label>
+
+                    <select
+                        id="status"
+                        required>
+
+                        <option value="">
+                            Select Status
+                        </option>
+
+                        <option>
+                            Active
+                        </option>
+
+                        <option>
+                            On Leave
+                        </option>
+
+                        <option>
+                            Inactive
+                        </option>
+
+                    </select>
+
+                    <small
+                        id="statusError">
+                    </small>
+
+                </div>
+
+
+
+                <!-- ADDRESS -->
+
+                <div class="field full">
+
+                    <label>
+                        Address
+                        <span>*</span>
+                    </label>
+
+                    <textarea
+                        id="address"
+                        rows="3"
+                        placeholder="Enter complete address"
+                        required>
+                    </textarea>
+
+                    <small
+                        id="addressError">
+                    </small>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- FORM ACTIONS -->
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    data-close="employeeModal">
+
+                    Cancel
+
+                </button>
+
+
+                <button
+                    class="primary-btn"
+                    id="saveBtn">
+
+                    Save Employee
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================
+     VIEW EMPLOYEE MODAL
+========================== -->
+
+<div
+    class="modal-overlay hidden"
+    id="viewModal">
+
+
+    <div class="modal">
+
+
+        <div class="modal-header">
+
+            <div>
+
+                <p class="eyebrow">
+                    Employee Profile
+                </p>
+
+                <h3>
+                    Employee Details
+                </h3>
+
+            </div>
+
+
+            <button
+                class="icon-btn"
+                data-close="viewModal">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <div
+            id="employeeDetails"
+            class="details-grid">
+        </div>
+
+
+        <div class="modal-actions">
+
+            <button
+                class="secondary-btn"
+                data-close="viewModal">
+
+                Close
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================
+     DELETE MODAL
+========================== -->
+
+<div
+    class="modal-overlay hidden"
+    id="deleteModal">
+
+
+    <div class="modal small-modal">
+
+
+        <div class="danger-symbol">
+            !
+        </div>
+
+
+        <h3>
+            Delete Employee?
+        </h3>
+
+
+        <p>
+            Are you sure you want to delete
+            <strong id="deleteEmployeeName"></strong>?
+            This action cannot be undone.
+        </p>
+
+
+        <div class="modal-actions">
+
+            <button
+                class="secondary-btn"
+                data-close="deleteModal">
+
+                Cancel
+
+            </button>
+
+
+            <button
+                class="danger-btn"
+                id="confirmDeleteBtn">
+
+                Delete
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- TOAST -->
+
+<div
+    id="toastContainer"
+    class="toast-container">
+</div>
+
+
+
+<!-- JAVASCRIPT -->
+
+<script src="{% static 'js/script.js' %}"></script>
+
+</body>
+
+</html>

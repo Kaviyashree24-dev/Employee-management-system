@@ -1,0 +1,258 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+  background: #f4f6f9;
+  color: #222;
+}
+
+header {
+  background: #1f2d3d;
+  color: #fff;
+  padding: 20px 30px;
+}
+
+header h1 {
+  font-size: 22px;
+}
+
+main {
+  max-width: 1100px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.controls input,
+.controls select {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.controls #searchInput {
+  flex: 1;
+  min-width: 200px;
+}
+
+#addNewBtn {
+  margin-left: auto;
+  background: #2f6fed;
+  color: #fff;
+  border: none;
+  padding: 9px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#addNewBtn:hover {
+  background: #2559c7;
+}
+
+.message-box {
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.message-box.success {
+  background: #e3f7e8;
+  color: #1a7431;
+  border: 1px solid #b6e6c1;
+}
+
+.message-box.error {
+  background: #fdeaea;
+  color: #b52b2b;
+  border: 1px solid #f3bcbc;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.table-wrapper {
+  background: #fff;
+  border-radius: 8px;
+  overflow-x: auto;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+thead {
+  background: #eef1f6;
+}
+
+th, td {
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid #eee;
+  white-space: nowrap;
+}
+
+tbody tr:hover {
+  background: #f9fafc;
+}
+
+.status-badge {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-badge.Active {
+  background: #e3f7e8;
+  color: #1a7431;
+}
+
+.status-badge.Inactive {
+  background: #f1f1f1;
+  color: #777;
+}
+
+.actions-cell button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 13px;
+  margin-right: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.edit-btn {
+  color: #2f6fed;
+}
+
+.edit-btn:hover {
+  background: #eaf1ff;
+}
+
+.delete-btn {
+  color: #d63636;
+}
+
+.delete-btn:hover {
+  background: #fdeaea;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 30px;
+  color: #888;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 24px 28px;
+  border-radius: 10px;
+  width: 420px;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-content.small {
+  width: 340px;
+}
+
+.modal-content h2 {
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+
+#employeeForm label {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 4px;
+  font-size: 13px;
+  color: #444;
+}
+
+#employeeForm input,
+#employeeForm select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.form-error {
+  margin-top: 12px;
+  padding: 8px 10px;
+  background: #fdeaea;
+  color: #b52b2b;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-actions button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#cancelBtn, #cancelDeleteBtn {
+  background: #eee;
+  color: #333;
+}
+
+#saveBtn {
+  background: #2f6fed;
+  color: #fff;
+}
+
+.danger {
+  background: #d63636;
+  color: #fff;
+}
+
+@media (max-width: 600px) {
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  #addNewBtn {
+    margin-left: 0;
+  }
+}

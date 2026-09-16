@@ -1,0 +1,19 @@
+{
+  "info": {
+    "name": "Employee Management System API",
+    "description": "CRUD API collection for VSB Skill Vault Activity 3",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key":"base_url","value":"http://127.0.0.1:8000"},
+    {"key":"employee_id","value":"1"}
+  ],
+  "item": [
+    {"name":"GET - List Employees","request":{"method":"GET","url":"{{base_url}}/api/employees/"}},
+    {"name":"POST - Create Employee","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"employee_id\":\"EMP1009\",\n  \"employee_name\":\"Meena Raj\",\n  \"email\":\"meena.raj@example.com\",\n  \"phone_number\":\"9876543299\",\n  \"department\":\"Human Resources\",\n  \"designation\":\"HR Executive\",\n  \"employment_type\":\"Full Time\",\n  \"joining_date\":\"2025-06-15\",\n  \"salary\":\"42000.00\",\n  \"status\":\"Active\",\n  \"address\":\"Karur, Tamil Nadu\"\n}"},"url":"{{base_url}}/api/employees/"}},
+    {"name":"GET - Single Employee","request":{"method":"GET","url":"{{base_url}}/api/employees/{{employee_id}}/"}},
+    {"name":"PUT - Update Employee","request":{"method":"PUT","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"employee_id\":\"EMP1009\",\n  \"employee_name\":\"Meena Raj\",\n  \"email\":\"meena.updated@example.com\",\n  \"phone_number\":\"9876543299\",\n  \"department\":\"Engineering\",\n  \"designation\":\"Senior Developer\",\n  \"employment_type\":\"Full Time\",\n  \"joining_date\":\"2025-06-15\",\n  \"salary\":\"52000.00\",\n  \"status\":\"Active\",\n  \"address\":\"Karur, Tamil Nadu\"\n}"},"url":"{{base_url}}/api/employees/{{employee_id}}/"}},
+    {"name":"PATCH - Partial Update","request":{"method":"PATCH","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"status\":\"On Leave\"}"},"url":"{{base_url}}/api/employees/{{employee_id}}/"}},
+    {"name":"DELETE - Delete Employee","request":{"method":"DELETE","url":"{{base_url}}/api/employees/{{employee_id}}/"}}
+  ]
+}
