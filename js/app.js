@@ -1,16 +1,15 @@
-// ==========================================
-// Employee Management System
-// JavaScript - CRUD Operations
-// ==========================================
+// ============================================
+// EMPLOYEE MANAGEMENT SYSTEM
+// GitHub Pages Frontend + Render Django API
+// ============================================
 
-// Live Django REST API on Render
+// LIVE DJANGO API
 const API_BASE =
   "https://employee-management-system-62xp.onrender.com/api/employees/";
 
-
-// ==========================================
-// DOM REFERENCES
-// ==========================================
+// ============================================
+// DOM ELEMENTS
+// ============================================
 
 const tableBody = document.getElementById("employeeTableBody");
 const emptyState = document.getElementById("emptyState");
@@ -35,9 +34,9 @@ let pendingDeleteId = null;
 let searchDebounce = null;
 
 
-// ==========================================
+// ============================================
 // SHOW MESSAGE
-// ==========================================
+// ============================================
 
 function showMessage(text, type = "success") {
 
@@ -53,9 +52,9 @@ function showMessage(text, type = "success") {
 }
 
 
-// ==========================================
+// ============================================
 // BUILD SEARCH QUERY
-// ==========================================
+// ============================================
 
 function buildQuery() {
 
@@ -83,9 +82,9 @@ function buildQuery() {
 }
 
 
-// ==========================================
+// ============================================
 // READ - LOAD EMPLOYEES
-// ==========================================
+// ============================================
 
 async function loadEmployees() {
 
@@ -97,34 +96,33 @@ async function loadEmployees() {
       throw new Error("Failed to load employees");
     }
 
-    const employees = await response.json();
+    const data = await response.json();
 
-    renderTable(employees);
+    console.log("Employees from API:", data);
+
+    renderTable(data);
 
   } catch (error) {
 
-    console.error("Load error:", error);
+    console.error("GET Error:", error);
 
     showMessage(
-      "Could not reach the server.",
+      "Could not reach the Django server.",
       "error"
     );
   }
 }
 
 
-// ==========================================
+// ============================================
 // RENDER EMPLOYEE TABLE
-// ==========================================
+// ============================================
 
 function renderTable(employees) {
 
   if (!tableBody) return;
 
   tableBody.innerHTML = "";
-
-
-  // No employees
 
   if (!employees || employees.length === 0) {
 
@@ -135,13 +133,10 @@ function renderTable(employees) {
     return;
   }
 
-
   if (emptyState) {
     emptyState.classList.add("hidden");
   }
 
-
-  // Display employees
 
   employees.forEach((employee) => {
 
@@ -150,7 +145,7 @@ function renderTable(employees) {
     row.innerHTML = `
 
       <td>
-        ${escapeHtml(employee.full_name)}
+        ${escapeHtml(employee.employee_name)}
       </td>
 
       <td>
@@ -170,11 +165,11 @@ function renderTable(employees) {
       </td>
 
       <td>
-        ${escapeHtml(employee.date_of_joining)}
+        ${employee.joining_date || ""}
       </td>
 
       <td>
-        ₹${Number(employee.salary).toLocaleString("en-IN")}
+        ₹${Number(employee.salary || 0).toLocaleString("en-IN")}
       </td>
 
       <td>
@@ -187,19 +182,18 @@ function renderTable(employees) {
 
         <button
           class="edit-btn"
-          data-id="${employee.id}">
+          data-id="${employee.employee_id}">
           Edit
         </button>
 
         <button
           class="delete-btn"
-          data-id="${employee.id}"
-          data-name="${escapeHtml(employee.full_name)}">
+          data-id="${employee.employee_id}"
+          data-name="${escapeHtml(employee.employee_name)}">
           Delete
         </button>
 
       </td>
-
     `;
 
     tableBody.appendChild(row);
@@ -207,9 +201,7 @@ function renderTable(employees) {
   });
 
 
-  // ========================================
-  // EDIT BUTTON
-  // ========================================
+  // EDIT BUTTONS
 
   document.querySelectorAll(".edit-btn").forEach((button) => {
 
@@ -222,9 +214,7 @@ function renderTable(employees) {
   });
 
 
-  // ========================================
-  // DELETE BUTTON
-  // ========================================
+  // DELETE BUTTONS
 
   document.querySelectorAll(".delete-btn").forEach((button) => {
 
@@ -242,9 +232,9 @@ function renderTable(employees) {
 }
 
 
-// ==========================================
+// ============================================
 // ESCAPE HTML
-// ==========================================
+// ============================================
 
 function escapeHtml(value) {
 
@@ -256,147 +246,202 @@ function escapeHtml(value) {
 }
 
 
-// ==========================================
-// CREATE - OPEN ADD EMPLOYEE MODAL
-// ==========================================
+// ============================================
+// GET FORM VALUE SAFELY
+// ============================================
+
+function getValue(id) {
+
+  const element = document.getElementById(id);
+
+  if (!element) {
+    return "";
+  }
+
+  return element.value.trim();
+}
+
+
+// ============================================
+// CREATE - OPEN ADD MODAL
+// ============================================
 
 function openAddModal() {
+
+  if (!employeeModal || !employeeForm) return;
 
   modalTitle.textContent = "Add Employee";
 
   employeeForm.reset();
 
-  document.getElementById("employeeId").value = "";
+  const employeeId = document.getElementById("employeeId");
 
-  formError.classList.add("hidden");
+  if (employeeId) {
+    employeeId.value = "";
+  }
+
+  if (formError) {
+    formError.textContent = "";
+    formError.classList.add("hidden");
+  }
 
   employeeModal.classList.remove("hidden");
 }
 
 
-// ==========================================
+// ============================================
 // UPDATE - OPEN EDIT MODAL
-// ==========================================
+// ============================================
 
-async function openEditModal(id) {
+async function openEditModal(employeeId) {
 
   try {
 
     const response =
-      await fetch(`${API_BASE}${id}/`);
+      await fetch(`${API_BASE}${employeeId}/`);
 
     if (!response.ok) {
       throw new Error("Employee not found");
     }
 
-    const employee =
-      await response.json();
+    const employee = await response.json();
+
+    console.log("Employee details:", employee);
 
 
     modalTitle.textContent = "Edit Employee";
 
 
-    // Database ID
-
-    document.getElementById("employeeId").value =
-      employee.id;
-
-
     // Employee ID
 
-    const employeeCode =
-      document.getElementById("employeeCode");
+    const idField =
+      document.getElementById("employeeId");
 
-    if (employeeCode) {
-
-      employeeCode.value =
-        employee.employee_id || "";
-
+    if (idField) {
+      idField.value = employee.employee_id;
     }
 
 
-    // Full name
+    // Employee Name
 
-    document.getElementById("fullName").value =
-      employee.full_name || "";
+    const nameField =
+      document.getElementById("fullName");
+
+    if (nameField) {
+      nameField.value =
+        employee.employee_name || "";
+    }
 
 
     // Email
 
-    document.getElementById("email").value =
-      employee.email || "";
+    const emailField =
+      document.getElementById("email");
+
+    if (emailField) {
+      emailField.value =
+        employee.email || "";
+    }
 
 
     // Phone
 
-    document.getElementById("phoneNumber").value =
-      employee.phone_number || "";
+    const phoneField =
+      document.getElementById("phoneNumber");
+
+    if (phoneField) {
+      phoneField.value =
+        employee.phone_number || "";
+    }
 
 
     // Department
 
-    document.getElementById("department").value =
-      employee.department || "";
+    const departmentField =
+      document.getElementById("department");
+
+    if (departmentField) {
+      departmentField.value =
+        employee.department || "";
+    }
 
 
     // Designation
 
-    document.getElementById("designation").value =
-      employee.designation || "";
+    const designationField =
+      document.getElementById("designation");
 
-
-    // Employment type
-
-    const employmentType =
-      document.getElementById("employmentType");
-
-    if (employmentType) {
-
-      employmentType.value =
-        employee.employment_type || "";
-
+    if (designationField) {
+      designationField.value =
+        employee.designation || "";
     }
 
 
-    // Date of joining
+    // Employment Type
 
-    document.getElementById("dateOfJoining").value =
-      employee.date_of_joining || "";
+    const employmentField =
+      document.getElementById("employmentType");
+
+    if (employmentField) {
+      employmentField.value =
+        employee.employment_type || "";
+    }
+
+
+    // Joining Date
+
+    const joiningDateField =
+      document.getElementById("dateOfJoining");
+
+    if (joiningDateField) {
+      joiningDateField.value =
+        employee.joining_date || "";
+    }
 
 
     // Salary
 
-    document.getElementById("salary").value =
-      employee.salary || "";
+    const salaryField =
+      document.getElementById("salary");
+
+    if (salaryField) {
+      salaryField.value =
+        employee.salary || "";
+    }
 
 
     // Status
 
-    document.getElementById("status").value =
-      employee.status || "";
+    const statusField =
+      document.getElementById("status");
+
+    if (statusField) {
+      statusField.value =
+        employee.status || "";
+    }
 
 
     // Address
 
-    const address =
+    const addressField =
       document.getElementById("address");
 
-    if (address) {
-
-      address.value =
+    if (addressField) {
+      addressField.value =
         employee.address || "";
-
     }
 
 
-    formError.classList.add("hidden");
+    if (formError) {
+      formError.textContent = "";
+      formError.classList.add("hidden");
+    }
 
     employeeModal.classList.remove("hidden");
 
-
   } catch (error) {
 
-    console.error("Edit error:", error);
+    console.error("GET single employee error:", error);
 
     showMessage(
       "Could not load employee details.",
@@ -408,359 +453,398 @@ async function openEditModal(id) {
 }
 
 
-// ==========================================
+// ============================================
 // CLOSE EMPLOYEE MODAL
-// ==========================================
+// ============================================
 
 function closeEmployeeModal() {
 
-  employeeModal.classList.add("hidden");
+  if (employeeModal) {
+    employeeModal.classList.add("hidden");
+  }
 
 }
 
 
-// ==========================================
+// ============================================
 // CREATE / UPDATE EMPLOYEE
-// ==========================================
+// ============================================
 
-employeeForm.addEventListener("submit", async (event) => {
+if (employeeForm) {
 
-  event.preventDefault();
+  employeeForm.addEventListener(
+    "submit",
+    async function (event) {
 
-
-  // Database ID for update
-
-  const databaseId =
-    document.getElementById("employeeId").value;
+      event.preventDefault();
 
 
-  // ========================================
-  // EMPLOYEE ID
-  // ========================================
-
-  const employeeCodeField =
-    document.getElementById("employeeCode");
-
-  let employeeCode = "";
-
-  if (employeeCodeField) {
-
-    employeeCode =
-      employeeCodeField.value.trim();
-
-  }
+      // Employee ID
+      const employeeId =
+        getValue("employeeId");
 
 
-  // Generate ID if empty
+      // FORM DATA
+      const payload = {
 
-  if (!employeeCode) {
+        employee_id:
+          getValue("employeeId"),
 
-    employeeCode =
-      "EMP" + Date.now().toString().slice(-6);
+        employee_name:
+          getValue("fullName"),
 
-  }
+        email:
+          getValue("email"),
 
+        phone_number:
+          getValue("phoneNumber"),
 
-  // ========================================
-  // EMPLOYEE DATA
-  // ========================================
+        department:
+          getValue("department"),
 
-  const payload = {
+        designation:
+          getValue("designation"),
 
-    employee_id:
-      employeeCode,
+        employment_type:
+          getValue("employmentType"),
 
-    full_name:
-      document.getElementById("fullName").value.trim(),
+        joining_date:
+          getValue("dateOfJoining"),
 
-    email:
-      document.getElementById("email").value.trim(),
+        salary:
+          getValue("salary"),
 
-    phone_number:
-      document.getElementById("phoneNumber").value.trim(),
+        status:
+          getValue("status"),
 
-    department:
-      document.getElementById("department").value,
+        address:
+          getValue("address")
 
-    designation:
-      document.getElementById("designation").value.trim(),
-
-    employment_type:
-      document.getElementById("employmentType")
-        ? document.getElementById("employmentType").value
-        : "Full Time",
-
-    date_of_joining:
-      document.getElementById("dateOfJoining").value,
-
-    salary:
-      document.getElementById("salary").value,
-
-    status:
-      document.getElementById("status").value,
-
-    address:
-      document.getElementById("address")
-        ? document.getElementById("address").value.trim()
-        : ""
-
-  };
+      };
 
 
-  // ========================================
-  // CREATE OR UPDATE
-  // ========================================
-
-  const isEdit = Boolean(databaseId);
-
-  const url = isEdit
-    ? `${API_BASE}${databaseId}/`
-    : API_BASE;
-
-  const method = isEdit
-    ? "PATCH"
-    : "POST";
-
-
-  try {
-
-    const response = await fetch(url, {
-
-      method: method,
-
-      headers: {
-        "Content-Type": "application/json"
-      },
-
-      body: JSON.stringify(payload)
-
-    });
-
-
-    // ======================================
-    // ERROR
-    // ======================================
-
-    if (!response.ok) {
-
-      let errorData = {};
-
-      try {
-
-        errorData =
-          await response.json();
-
-      } catch {
-
-        errorData = {};
-
-      }
-
-
-      console.error(
-        "Server error:",
-        errorData
+      console.log(
+        "Sending employee data:",
+        payload
       );
 
 
-      const firstError =
-        Object.values(errorData)[0];
+      const isEdit =
+        Boolean(employeeId);
 
 
-      if (firstError) {
+      const url =
+        isEdit
+          ? `${API_BASE}${employeeId}/`
+          : API_BASE;
 
-        formError.textContent =
-          Array.isArray(firstError)
-            ? firstError[0]
-            : String(firstError);
 
-      } else {
+      const method =
+        isEdit
+          ? "PUT"
+          : "POST";
 
-        formError.textContent =
-          "Please check the employee details.";
+
+      try {
+
+        const response =
+          await fetch(url, {
+
+            method: method,
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body:
+              JSON.stringify(payload)
+
+          });
+
+
+        // ERROR RESPONSE
+
+        if (!response.ok) {
+
+          let errorData = {};
+
+          try {
+            errorData =
+              await response.json();
+          } catch {
+            errorData = {};
+          }
+
+
+          console.error(
+            "Server error:",
+            errorData
+          );
+
+
+          let errorMessage =
+            "Please check the entered details.";
+
+
+          if (typeof errorData === "object") {
+
+            const firstKey =
+              Object.keys(errorData)[0];
+
+            if (firstKey) {
+
+              const firstError =
+                errorData[firstKey];
+
+              if (Array.isArray(firstError)) {
+
+                errorMessage =
+                  `${firstKey}: ${firstError[0]}`;
+
+              } else {
+
+                errorMessage =
+                  `${firstKey}: ${firstError}`;
+
+              }
+
+            }
+
+          }
+
+
+          if (formError) {
+
+            formError.textContent =
+              errorMessage;
+
+            formError.classList.remove(
+              "hidden"
+            );
+
+          }
+
+          return;
+        }
+
+
+        // SUCCESS
+
+        console.log(
+          "Employee saved successfully"
+        );
+
+
+        closeEmployeeModal();
+
+
+        showMessage(
+          isEdit
+            ? "Employee updated successfully."
+            : "Employee added successfully.",
+          "success"
+        );
+
+
+        // Reload table
+
+        await loadEmployees();
+
+      } catch (error) {
+
+        console.error(
+          "POST / PUT error:",
+          error
+        );
+
+
+        if (formError) {
+
+          formError.textContent =
+            "Network error. Please check the server.";
+
+          formError.classList.remove(
+            "hidden"
+          );
+
+        }
 
       }
 
-
-      formError.classList.remove("hidden");
-
-      return;
     }
+  );
+
+}
 
 
-    // ======================================
-    // SUCCESS
-    // ======================================
-
-    closeEmployeeModal();
-
-
-    showMessage(
-
-      isEdit
-        ? "Employee updated successfully."
-        : "Employee added successfully."
-
-    );
-
-
-    loadEmployees();
-
-
-  } catch (error) {
-
-    console.error(
-      "Save error:",
-      error
-    );
-
-
-    formError.textContent =
-      "Network error. Please check the server.";
-
-    formError.classList.remove("hidden");
-
-  }
-
-});
-
-
-// ==========================================
-// DELETE - OPEN DELETE MODAL
-// ==========================================
+// ============================================
+// DELETE MODAL
+// ============================================
 
 function openDeleteModal(id, name) {
 
   pendingDeleteId = id;
 
 
-  const deleteText =
-    document.getElementById("deleteConfirmText");
+  const text =
+    document.getElementById(
+      "deleteConfirmText"
+    );
 
 
-  if (deleteText) {
+  if (text) {
 
-    deleteText.textContent =
+    text.textContent =
       `Are you sure you want to delete ${name}?`;
 
   }
 
 
-  deleteModal.classList.remove("hidden");
+  if (deleteModal) {
+
+    deleteModal.classList.remove(
+      "hidden"
+    );
+
+  }
 
 }
 
 
-// ==========================================
+// ============================================
 // CLOSE DELETE MODAL
-// ==========================================
+// ============================================
 
 function closeDeleteModal() {
 
   pendingDeleteId = null;
 
-  deleteModal.classList.add("hidden");
+
+  if (deleteModal) {
+
+    deleteModal.classList.add(
+      "hidden"
+    );
+
+  }
 
 }
 
 
-// ==========================================
+// ============================================
 // DELETE EMPLOYEE
-// ==========================================
+// ============================================
 
-confirmDeleteBtn.addEventListener(
-  "click",
-  async () => {
+if (confirmDeleteBtn) {
 
-    if (!pendingDeleteId) {
-      return;
-    }
+  confirmDeleteBtn.addEventListener(
+    "click",
+    async function () {
+
+      if (!pendingDeleteId) {
+        return;
+      }
 
 
-    try {
+      try {
 
-      const response =
-        await fetch(
-          `${API_BASE}${pendingDeleteId}/`,
-          {
-            method: "DELETE"
-          }
+        const response =
+          await fetch(
+            `${API_BASE}${pendingDeleteId}/`,
+            {
+              method: "DELETE"
+            }
+          );
+
+
+        if (
+          !response.ok &&
+          response.status !== 204
+        ) {
+
+          throw new Error(
+            "Delete failed"
+          );
+
+        }
+
+
+        closeDeleteModal();
+
+
+        showMessage(
+          "Employee deleted successfully.",
+          "success"
         );
 
 
-      if (
-        !response.ok &&
-        response.status !== 204
-      ) {
+        await loadEmployees();
 
-        throw new Error(
-          "Delete failed"
+      } catch (error) {
+
+        console.error(
+          "DELETE error:",
+          error
+        );
+
+
+        showMessage(
+          "Could not delete employee.",
+          "error"
         );
 
       }
 
-
-      closeDeleteModal();
-
-
-      showMessage(
-        "Employee deleted successfully."
-      );
-
-
-      loadEmployees();
-
-
-    } catch (error) {
-
-      console.error(
-        "Delete error:",
-        error
-      );
-
-
-      showMessage(
-        "Could not delete employee.",
-        "error"
-      );
-
     }
+  );
 
-  }
-);
-
-
-// ==========================================
-// EVENT LISTENERS
-// ==========================================
-
-addNewBtn.addEventListener(
-  "click",
-  openAddModal
-);
+}
 
 
-cancelBtn.addEventListener(
-  "click",
-  closeEmployeeModal
-);
+// ============================================
+// BUTTON EVENTS
+// ============================================
+
+if (addNewBtn) {
+
+  addNewBtn.addEventListener(
+    "click",
+    openAddModal
+  );
+
+}
 
 
-cancelDeleteBtn.addEventListener(
-  "click",
-  closeDeleteModal
-);
+if (cancelBtn) {
+
+  cancelBtn.addEventListener(
+    "click",
+    closeEmployeeModal
+  );
+
+}
 
 
-// ==========================================
+if (cancelDeleteBtn) {
+
+  cancelDeleteBtn.addEventListener(
+    "click",
+    closeDeleteModal
+  );
+
+}
+
+
+// ============================================
 // SEARCH
-// ==========================================
+// ============================================
 
 if (searchInput) {
 
   searchInput.addEventListener(
     "input",
-    () => {
+    function () {
 
       clearTimeout(searchDebounce);
 
@@ -776,9 +860,9 @@ if (searchInput) {
 }
 
 
-// ==========================================
+// ============================================
 // DEPARTMENT FILTER
-// ==========================================
+// ============================================
 
 if (departmentFilter) {
 
@@ -790,9 +874,9 @@ if (departmentFilter) {
 }
 
 
-// ==========================================
+// ============================================
 // STATUS FILTER
-// ==========================================
+// ============================================
 
 if (statusFilter) {
 
@@ -804,8 +888,8 @@ if (statusFilter) {
 }
 
 
-// ==========================================
+// ============================================
 // INITIAL LOAD
-// ==========================================
+// ============================================
 
 loadEmployees();
