@@ -1,7 +1,16 @@
-// Base URL of the Django REST API
-const API_BASE = "http://127.0.0.1:8000/api/employees/";
+// ==========================================
+// Employee Management System
+// Django REST API - Render Backend
+// ==========================================
 
-// --- DOM references ---
+const API_BASE =
+  "https://employee-management-system-62xp.onrender.com/api/employees/";
+
+
+// ==========================================
+// DOM REFERENCES
+// ==========================================
+
 const tableBody = document.getElementById("employeeTableBody");
 const emptyState = document.getElementById("emptyState");
 const messageBox = document.getElementById("messageBox");
@@ -24,198 +33,753 @@ const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
 let pendingDeleteId = null;
 let searchDebounce = null;
 
-// --- Helpers ---
+
+// ==========================================
+// SHOW MESSAGE
+// ==========================================
+
 function showMessage(text, type = "success") {
+  if (!messageBox) return;
+
   messageBox.textContent = text;
   messageBox.className = `message-box ${type}`;
   messageBox.classList.remove("hidden");
-  setTimeout(() => messageBox.classList.add("hidden"), 3000);
+
+  setTimeout(() => {
+    messageBox.classList.add("hidden");
+  }, 3000);
 }
+
+
+// ==========================================
+// BUILD SEARCH QUERY
+// ==========================================
 
 function buildQuery() {
   const params = new URLSearchParams();
-  if (searchInput.value.trim()) params.set("search", searchInput.value.trim());
-  if (departmentFilter.value) params.set("department", departmentFilter.value);
-  if (statusFilter.value) params.set("status", statusFilter.value);
-  const qs = params.toString();
-  return qs ? `${API_BASE}?${qs}` : API_BASE;
+
+  if (searchInput && searchInput.value.trim()) {
+    params.set("search", searchInput.value.trim());
+  }
+
+  if (departmentFilter && departmentFilter.value) {
+    params.set("department", departmentFilter.value);
+  }
+
+  if (statusFilter && statusFilter.value) {
+    params.set("status", statusFilter.value);
+  }
+
+  const query = params.toString();
+
+  return query ? `${API_BASE}?${query}` : API_BASE;
 }
 
-// --- READ: fetch and render employees ---
+
+// ==========================================
+// READ - LOAD EMPLOYEES
+// ==========================================
+
 async function loadEmployees() {
   try {
-    const res = await fetch(buildQuery());
-    if (!res.ok) throw new Error("Failed to load employees");
-    const data = await res.json();
-    renderTable(data);
-  } catch (err) {
-    showMessage("Could not reach the server. Is the Django backend running?", "error");
-    console.error(err);
+    const response = await fetch(buildQuery());
+
+    if (!response.ok) {
+      throw new Error("Failed to load employees");
+    }
+
+    const employees = await response.json();
+
+    renderTable(employees);
+
+  } catch (error) {
+
+    console.error("Load error:", error);
+
+    showMessage(
+      "Could not connect to the server.",
+      "error"
+    );
   }
 }
 
+
+// ==========================================
+// RENDER EMPLOYEE TABLE
+// ==========================================
+
 function renderTable(employees) {
+
+  if (!tableBody) return;
+
   tableBody.innerHTML = "";
 
   if (!employees || employees.length === 0) {
-    emptyState.classList.remove("hidden");
-    return;
-  }
-  emptyState.classList.add("hidden");
 
-  employees.forEach((emp) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${escapeHtml(emp.full_name)}</td>
-      <td>${escapeHtml(emp.email)}</td>
-      <td>${escapeHtml(emp.phone_number)}</td>
-      <td>${escapeHtml(emp.department)}</td>
-      <td>${escapeHtml(emp.designation)}</td>
-      <td>${emp.date_of_joining}</td>
-      <td>₹${Number(emp.salary).toLocaleString("en-IN")}</td>
-      <td><span class="status-badge ${emp.status}">${emp.status}</span></td>
-      <td class="actions-cell">
-        <button class="edit-btn" data-id="${emp.id}">Edit</button>
-        <button class="delete-btn" data-id="${emp.id}" data-name="${escapeHtml(emp.full_name)}">Delete</button>
-      </td>
-    `;
-    tableBody.appendChild(row);
-  });
-
-  document.querySelectorAll(".edit-btn").forEach((btn) =>
-    btn.addEventListener("click", () => openEditModal(btn.dataset.id))
-  );
-  document.querySelectorAll(".delete-btn").forEach((btn) =>
-    btn.addEventListener("click", () => openDeleteModal(btn.dataset.id, btn.dataset.name))
-  );
-}
-
-function escapeHtml(str) {
-  const div = document.createElement("div");
-  div.textContent = str ?? "";
-  return div.innerHTML;
-}
-
-// --- CREATE / UPDATE modal handling ---
-function openAddModal() {
-  modalTitle.textContent = "Add Employee";
-  employeeForm.reset();
-  document.getElementById("employeeId").value = "";
-  formError.classList.add("hidden");
-  employeeModal.classList.remove("hidden");
-}
-
-async function openEditModal(id) {
-  try {
-    const res = await fetch(`${API_BASE}${id}/`);
-    if (!res.ok) throw new Error("Employee not found");
-    const emp = await res.json();
-
-    modalTitle.textContent = "Edit Employee";
-    document.getElementById("employeeId").value = emp.id;
-    document.getElementById("fullName").value = emp.full_name;
-    document.getElementById("email").value = emp.email;
-    document.getElementById("phoneNumber").value = emp.phone_number;
-    document.getElementById("department").value = emp.department;
-    document.getElementById("designation").value = emp.designation;
-    document.getElementById("dateOfJoining").value = emp.date_of_joining;
-    document.getElementById("salary").value = emp.salary;
-    document.getElementById("status").value = emp.status;
-
-    formError.classList.add("hidden");
-    employeeModal.classList.remove("hidden");
-  } catch (err) {
-    showMessage("Could not load employee details.", "error");
-    console.error(err);
-  }
-}
-
-function closeEmployeeModal() {
-  employeeModal.classList.add("hidden");
-}
-
-employeeForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const id = document.getElementById("employeeId").value;
-  const payload = {
-    full_name: document.getElementById("fullName").value.trim(),
-    email: document.getElementById("email").value.trim(),
-    phone_number: document.getElementById("phoneNumber").value.trim(),
-    department: document.getElementById("department").value,
-    designation: document.getElementById("designation").value.trim(),
-    date_of_joining: document.getElementById("dateOfJoining").value,
-    salary: document.getElementById("salary").value,
-    status: document.getElementById("status").value,
-  };
-
-  const isEdit = Boolean(id);
-  const url = isEdit ? `${API_BASE}${id}/` : API_BASE;
-  const method = isEdit ? "PUT" : "POST";
-
-  try {
-    const res = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      const errData = await res.json();
-      const firstError = Object.values(errData)[0];
-      formError.textContent = Array.isArray(firstError) ? firstError[0] : String(firstError);
-      formError.classList.remove("hidden");
-      return;
+    if (emptyState) {
+      emptyState.classList.remove("hidden");
     }
 
-    closeEmployeeModal();
-    showMessage(isEdit ? "Employee updated successfully." : "Employee added successfully.");
-    loadEmployees();
-  } catch (err) {
-    formError.textContent = "Network error. Please check the server and try again.";
-    formError.classList.remove("hidden");
-    console.error(err);
+    return;
   }
+
+  if (emptyState) {
+    emptyState.classList.add("hidden");
+  }
+
+
+  employees.forEach((employee) => {
+
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+
+      <td>
+        ${escapeHtml(employee.employee_id)}
+      </td>
+
+      <td>
+        ${escapeHtml(employee.employee_name)}
+      </td>
+
+      <td>
+        ${escapeHtml(employee.email)}
+      </td>
+
+      <td>
+        ${escapeHtml(employee.phone_number)}
+      </td>
+
+      <td>
+        ${escapeHtml(employee.department)}
+      </td>
+
+      <td>
+        ${escapeHtml(employee.designation)}
+      </td>
+
+      <td>
+        ${escapeHtml(employee.joining_date)}
+      </td>
+
+      <td>
+        ₹${Number(employee.salary).toLocaleString("en-IN")}
+      </td>
+
+      <td>
+        <span class="status-badge ${escapeHtml(employee.status)}">
+          ${escapeHtml(employee.status)}
+        </span>
+      </td>
+
+      <td class="actions-cell">
+
+        <button
+          class="edit-btn"
+          data-id="${employee.id}">
+          Edit
+        </button>
+
+        <button
+          class="delete-btn"
+          data-id="${employee.id}"
+          data-name="${escapeHtml(employee.employee_name)}">
+          Delete
+        </button>
+
+      </td>
+
+    `;
+
+    tableBody.appendChild(row);
+
+  });
+
+
+  // EDIT BUTTONS
+
+  document.querySelectorAll(".edit-btn").forEach((button) => {
+
+    button.addEventListener("click", () => {
+
+      openEditModal(button.dataset.id);
+
+    });
+
+  });
+
+
+  // DELETE BUTTONS
+
+  document.querySelectorAll(".delete-btn").forEach((button) => {
+
+    button.addEventListener("click", () => {
+
+      openDeleteModal(
+        button.dataset.id,
+        button.dataset.name
+      );
+
+    });
+
+  });
+
+}
+
+
+// ==========================================
+// ESCAPE HTML
+// ==========================================
+
+function escapeHtml(value) {
+
+  const div = document.createElement("div");
+
+  div.textContent = value ?? "";
+
+  return div.innerHTML;
+
+}
+
+
+// ==========================================
+// CREATE - OPEN ADD MODAL
+// ==========================================
+
+function openAddModal() {
+
+  modalTitle.textContent = "Add Employee";
+
+  employeeForm.reset();
+
+  document.getElementById("employeeId").value = "";
+
+  formError.classList.add("hidden");
+
+  employeeModal.classList.remove("hidden");
+
+}
+
+
+// ==========================================
+// UPDATE - OPEN EDIT MODAL
+// ==========================================
+
+async function openEditModal(id) {
+
+  try {
+
+    const response =
+      await fetch(`${API_BASE}${id}/`);
+
+    if (!response.ok) {
+      throw new Error("Employee not found");
+    }
+
+    const employee =
+      await response.json();
+
+
+    modalTitle.textContent = "Edit Employee";
+
+
+    // Store database ID
+
+    document.getElementById("employeeId").value =
+      employee.id;
+
+
+    // Employee ID
+
+    const employeeIdField =
+      document.getElementById("employeeCode");
+
+    if (employeeIdField) {
+
+      employeeIdField.value =
+        employee.employee_id;
+
+    }
+
+
+    // Employee name
+
+    document.getElementById("fullName").value =
+      employee.employee_name || "";
+
+
+    // Email
+
+    document.getElementById("email").value =
+      employee.email || "";
+
+
+    // Phone
+
+    document.getElementById("phoneNumber").value =
+      employee.phone_number || "";
+
+
+    // Department
+
+    document.getElementById("department").value =
+      employee.department || "";
+
+
+    // Designation
+
+    document.getElementById("designation").value =
+      employee.designation || "";
+
+
+    // Employment type
+
+    const employmentType =
+      document.getElementById("employmentType");
+
+    if (employmentType) {
+
+      employmentType.value =
+        employee.employment_type || "";
+
+    }
+
+
+    // Joining date
+
+    document.getElementById("dateOfJoining").value =
+      employee.joining_date || "";
+
+
+    // Salary
+
+    document.getElementById("salary").value =
+      employee.salary || "";
+
+
+    // Status
+
+    document.getElementById("status").value =
+      employee.status || "";
+
+
+    // Address
+
+    const address =
+      document.getElementById("address");
+
+    if (address) {
+
+      address.value =
+        employee.address || "";
+
+    }
+
+
+    formError.classList.add("hidden");
+
+    employeeModal.classList.remove("hidden");
+
+
+  } catch (error) {
+
+    console.error("Edit error:", error);
+
+    showMessage(
+      "Could not load employee details.",
+      "error"
+    );
+
+  }
+
+}
+
+
+// ==========================================
+// CLOSE EMPLOYEE MODAL
+// ==========================================
+
+function closeEmployeeModal() {
+
+  employeeModal.classList.add("hidden");
+
+}
+
+
+// ==========================================
+// CREATE / UPDATE EMPLOYEE
+// ==========================================
+
+employeeForm.addEventListener("submit", async (event) => {
+
+  event.preventDefault();
+
+
+  const databaseId =
+    document.getElementById("employeeId").value;
+
+
+  // Employee ID field
+
+  const employeeCodeField =
+    document.getElementById("employeeCode");
+
+
+  let employeeCode = "";
+
+  if (employeeCodeField) {
+
+    employeeCode =
+      employeeCodeField.value.trim();
+
+  }
+
+
+  // If employee ID field does not exist,
+  // generate one automatically.
+
+  if (!employeeCode) {
+
+    employeeCode =
+      "EMP" + Date.now().toString().slice(-6);
+
+  }
+
+
+  // ========================================
+  // PAYLOAD
+  // ========================================
+
+  const payload = {
+
+    employee_id: employeeCode,
+
+    employee_name:
+      document.getElementById("fullName").value.trim(),
+
+    email:
+      document.getElementById("email").value.trim(),
+
+    phone_number:
+      document.getElementById("phoneNumber").value.trim(),
+
+    department:
+      document.getElementById("department").value,
+
+    designation:
+      document.getElementById("designation").value.trim(),
+
+    employment_type:
+      document.getElementById("employmentType")
+        ? document.getElementById("employmentType").value
+        : "Full Time",
+
+    joining_date:
+      document.getElementById("dateOfJoining").value,
+
+    salary:
+      document.getElementById("salary").value,
+
+    status:
+      document.getElementById("status").value,
+
+    address:
+      document.getElementById("address")
+        ? document.getElementById("address").value.trim()
+        : ""
+
+  };
+
+
+  // ========================================
+  // CREATE OR UPDATE
+  // ========================================
+
+  const isEdit = Boolean(databaseId);
+
+  const url = isEdit
+    ? `${API_BASE}${databaseId}/`
+    : API_BASE;
+
+  const method = isEdit
+    ? "PATCH"
+    : "POST";
+
+
+  try {
+
+    const response = await fetch(url, {
+
+      method: method,
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify(payload)
+
+    });
+
+
+    // ======================================
+    // ERROR RESPONSE
+    // ======================================
+
+    if (!response.ok) {
+
+      let errorData = {};
+
+      try {
+
+        errorData =
+          await response.json();
+
+      } catch {
+
+        errorData = {};
+
+      }
+
+
+      console.error("Server error:", errorData);
+
+
+      const firstError =
+        Object.values(errorData)[0];
+
+
+      if (firstError) {
+
+        formError.textContent =
+          Array.isArray(firstError)
+            ? firstError[0]
+            : String(firstError);
+
+      } else {
+
+        formError.textContent =
+          "Please check the employee details.";
+
+      }
+
+
+      formError.classList.remove("hidden");
+
+      return;
+
+    }
+
+
+    // ======================================
+    // SUCCESS
+    // ======================================
+
+    closeEmployeeModal();
+
+
+    showMessage(
+
+      isEdit
+        ? "Employee updated successfully."
+        : "Employee added successfully."
+
+    );
+
+
+    loadEmployees();
+
+
+  } catch (error) {
+
+    console.error("Save error:", error);
+
+    formError.textContent =
+      "Network error. Please check the server.";
+
+    formError.classList.remove("hidden");
+
+  }
+
 });
 
-// --- DELETE modal handling ---
+
+// ==========================================
+// DELETE - OPEN DELETE MODAL
+// ==========================================
+
 function openDeleteModal(id, name) {
+
   pendingDeleteId = id;
-  document.getElementById("deleteConfirmText").textContent =
-    `Are you sure you want to delete ${name}?`;
+
+
+  const text =
+    document.getElementById("deleteConfirmText");
+
+
+  if (text) {
+
+    text.textContent =
+      `Are you sure you want to delete ${name}?`;
+
+  }
+
+
   deleteModal.classList.remove("hidden");
+
 }
+
+
+// ==========================================
+// CLOSE DELETE MODAL
+// ==========================================
 
 function closeDeleteModal() {
+
   pendingDeleteId = null;
+
   deleteModal.classList.add("hidden");
+
 }
 
-confirmDeleteBtn.addEventListener("click", async () => {
-  if (!pendingDeleteId) return;
-  try {
-    const res = await fetch(`${API_BASE}${pendingDeleteId}/`, { method: "DELETE" });
-    if (!res.ok && res.status !== 204) throw new Error("Delete failed");
-    closeDeleteModal();
-    showMessage("Employee deleted successfully.");
-    loadEmployees();
-  } catch (err) {
-    showMessage("Could not delete employee. Please try again.", "error");
-    console.error(err);
+
+// ==========================================
+// DELETE EMPLOYEE
+// ==========================================
+
+confirmDeleteBtn.addEventListener(
+  "click",
+  async () => {
+
+    if (!pendingDeleteId) return;
+
+
+    try {
+
+      const response =
+        await fetch(
+          `${API_BASE}${pendingDeleteId}/`,
+          {
+            method: "DELETE"
+          }
+        );
+
+
+      if (
+        !response.ok &&
+        response.status !== 204
+      ) {
+
+        throw new Error("Delete failed");
+
+      }
+
+
+      closeDeleteModal();
+
+
+      showMessage(
+        "Employee deleted successfully."
+      );
+
+
+      loadEmployees();
+
+
+    } catch (error) {
+
+      console.error(
+        "Delete error:",
+        error
+      );
+
+
+      showMessage(
+        "Could not delete employee.",
+        "error"
+      );
+
+    }
+
   }
-});
+);
 
-// --- Event wiring ---
-addNewBtn.addEventListener("click", openAddModal);
-cancelBtn.addEventListener("click", closeEmployeeModal);
-cancelDeleteBtn.addEventListener("click", closeDeleteModal);
 
-searchInput.addEventListener("input", () => {
-  clearTimeout(searchDebounce);
-  searchDebounce = setTimeout(loadEmployees, 350);
-});
-departmentFilter.addEventListener("change", loadEmployees);
-statusFilter.addEventListener("change", loadEmployees);
+// ==========================================
+// EVENT LISTENERS
+// ==========================================
 
-// --- Initial load ---
+addNewBtn.addEventListener(
+  "click",
+  openAddModal
+);
+
+
+cancelBtn.addEventListener(
+  "click",
+  closeEmployeeModal
+);
+
+
+cancelDeleteBtn.addEventListener(
+  "click",
+  closeDeleteModal
+);
+
+
+// ==========================================
+// SEARCH
+// ==========================================
+
+if (searchInput) {
+
+  searchInput.addEventListener(
+    "input",
+    () => {
+
+      clearTimeout(searchDebounce);
+
+      searchDebounce =
+        setTimeout(
+          loadEmployees,
+          350
+        );
+
+    }
+  );
+
+}
+
+
+// ==========================================
+// DEPARTMENT FILTER
+// ==========================================
+
+if (departmentFilter) {
+
+  departmentFilter.addEventListener(
+    "change",
+    loadEmployees
+  );
+
+}
+
+
+// ==========================================
+// STATUS FILTER
+// ==========================================
+
+if (statusFilter) {
+
+  statusFilter.addEventListener(
+    "change",
+    loadEmployees
+  );
+
+}
+
+
+// ==========================================
+// INITIAL LOAD
+// ==========================================
+
 loadEmployees();
