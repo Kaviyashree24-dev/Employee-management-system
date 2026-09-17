@@ -11,7 +11,9 @@ class EmployeeAdmin(admin.ModelAdmin):
         'email',
         'department',
         'designation',
+        'employment_type',
         'joining_date',
+        'salary',
         'status',
     ]
 

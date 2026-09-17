@@ -124,6 +124,11 @@ tbody tr:hover {
   color: #1a7431;
 }
 
+.status-badge.OnLeave {
+  background: #fff3cd;
+  color: #856404;
+}
+
 .status-badge.Inactive {
   background: #f1f1f1;
   color: #777;
@@ -200,12 +205,14 @@ tbody tr:hover {
 }
 
 #employeeForm input,
-#employeeForm select {
+#employeeForm select,
+#employeeForm textarea {
   width: 100%;
   padding: 8px 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 14px;
+  font-family: inherit;
 }
 
 .form-error {

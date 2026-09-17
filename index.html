@@ -26,6 +26,7 @@
     <select id="statusFilter">
       <option value="">All Status</option>
       <option value="Active">Active</option>
+      <option value="On Leave">On Leave</option>
       <option value="Inactive">Inactive</option>
     </select>
     <button id="addNewBtn">+ Add Employee</button>
@@ -37,11 +38,13 @@
     <table id="employeeTable">
       <thead>
         <tr>
+          <th>Employee ID</th>
           <th>Name</th>
           <th>Email</th>
           <th>Phone</th>
           <th>Department</th>
           <th>Designation</th>
+          <th>Employment Type</th>
           <th>Joined</th>
           <th>Salary</th>
           <th>Status</th>
@@ -61,19 +64,23 @@
   <div class="modal-content">
     <h2 id="modalTitle">Add Employee</h2>
     <form id="employeeForm">
-      <input type="hidden" id="employeeId">
+      <input type="hidden" id="employeePk">
 
-      <label for="fullName">Full Name</label>
-      <input type="text" id="fullName" required>
+      <label for="employeeId">Employee ID</label>
+      <input type="text" id="employeeId" required placeholder="e.g. EMP001">
+
+      <label for="employeeName">Employee Name</label>
+      <input type="text" id="employeeName" required placeholder="e.g. Rahul Sharma">
 
       <label for="email">Email</label>
-      <input type="email" id="email" required>
+      <input type="email" id="email" required placeholder="e.g. rahul@example.com">
 
       <label for="phoneNumber">Phone Number</label>
-      <input type="text" id="phoneNumber" required>
+      <input type="text" id="phoneNumber" required placeholder="e.g. 9876543210">
 
       <label for="department">Department</label>
       <select id="department" required>
+        <option value="">Select Department</option>
         <option value="HR">HR</option>
         <option value="IT">IT</option>
         <option value="Sales">Sales</option>
@@ -82,19 +89,31 @@
       </select>
 
       <label for="designation">Designation</label>
-      <input type="text" id="designation" required>
+      <input type="text" id="designation" required placeholder="e.g. Senior Data Analyst">
 
-      <label for="dateOfJoining">Date of Joining</label>
-      <input type="date" id="dateOfJoining" required>
+      <label for="employmentType">Employment Type</label>
+      <select id="employmentType" required>
+        <option value="Full Time">Full Time</option>
+        <option value="Part Time">Part Time</option>
+        <option value="Contract">Contract</option>
+        <option value="Intern">Intern</option>
+      </select>
 
-      <label for="salary">Salary</label>
-      <input type="number" id="salary" min="1" step="0.01" required>
+      <label for="joiningDate">Joining Date</label>
+      <input type="date" id="joiningDate" required>
+
+      <label for="salary">Salary (₹)</label>
+      <input type="number" id="salary" min="1" step="0.01" required placeholder="e.g. 55000">
 
       <label for="status">Status</label>
-      <select id="status">
+      <select id="status" required>
         <option value="Active">Active</option>
+        <option value="On Leave">On Leave</option>
         <option value="Inactive">Inactive</option>
       </select>
+
+      <label for="address">Address</label>
+      <textarea id="address" rows="3" required placeholder="e.g. Coimbatore, Tamil Nadu"></textarea>
 
       <div id="formError" class="form-error hidden"></div>
 

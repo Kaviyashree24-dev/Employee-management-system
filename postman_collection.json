@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Employee Management System API",
-    "description": "CRUD API collection for VSB Skill Vault Activity 3",
+    "description": "CRUD API collection for Employee Management System",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [

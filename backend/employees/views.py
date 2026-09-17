@@ -11,15 +11,15 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     for the Employee model (full CRUD).
 
     Query params supported:
-      ?search=<name>              -> search by full_name or email
+      ?search=<name>              -> search by employee_name, email, or employee_id
       ?department=<dept>          -> filter by department
-      ?status=<Active|Inactive>   -> filter by status
+      ?status=<status>            -> filter by status
     """
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['department', 'status']
-    search_fields = ['full_name', 'email']
+    search_fields = ['employee_name', 'email', 'employee_id']
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

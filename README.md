@@ -1,129 +1,100 @@
-# Employee Management System – CRUD-Based Web Application
+# Employee Management System
 
-**VSB Skill Vault Activity 3 – Mini Web Application (CRUD-Based Web Application)**
+A complete full-stack, CRUD-based Web Application for managing employee records.
 
-## Overview
-A professional full-stack Employee Management System built with HTML, CSS, JavaScript, Django, Django REST Framework and SQLite.
+## Objective
+The Employee Management System enables organizations to create, read, update, and delete employee records through a responsive frontend hosted on GitHub Pages connected to a Django REST Framework backend deployed on Render.
 
 ## Features
-- Professional dashboard with live database statistics
-- Add, view, edit and delete employees
-- Search by employee ID, name, email, phone or designation
-- Filter by department, employment type and status
-- Sort records
-- Frontend and backend validation
-- Unique Employee ID and Email
-- Delete confirmation modal
-- Responsive design
-- REST API
-- Postman collection
-- Django automated tests
-- 8 sample employees
-- GitHub-ready structure
+- Full CRUD operations (Create, Read, Update, Delete employees)
+- Instant search by employee name, email, or employee ID
+- Department filter (HR, IT, Sales, Finance, Operations)
+- Status filter (Active, On Leave, Inactive)
+- INR currency formatted salary display
+- Add and Edit employee modal dialogs
+- Delete confirmation modal dialog
+- Validation for unique Employee ID and Email
+- Responsive design for mobile and desktop screens
 
-## Technology
-Frontend: HTML5, CSS3, JavaScript  
-Backend: Python Django  
-API: Django REST Framework  
-Database: SQLite  
-Testing: Postman + Django tests  
-Version Control: Git/GitHub
+## Technology Stack
+- **Frontend**: HTML5, CSS3, JavaScript (Vanilla JS)
+- **Backend**: Python 3, Django, Django REST Framework
+- **Database**: SQLite
+- **Deployment**:
+  - **Frontend**: GitHub Pages (`https://kaviyashree24-dev.github.io/Employee-management-system/`)
+  - **Backend**: Render (`https://employee-management-system-62xp.onrender.com`)
 
-## Employee fields
-- Employee ID
-- Employee Name
-- Email
-- Phone Number
-- Department
-- Designation
-- Employment Type
-- Joining Date
-- Salary
-- Status
-- Address
+## Employee Fields
+- `employee_id`: Unique identifier (e.g. `EMP001`)
+- `employee_name`: Full name of employee
+- `email`: Unique email address
+- `phone_number`: Contact phone number
+- `department`: HR, IT, Sales, Finance, Operations
+- `designation`: Job role or designation
+- `employment_type`: Full Time, Part Time, Contract, Intern
+- `joining_date`: Date of joining (`YYYY-MM-DD`)
+- `salary`: Decimal monthly salary
+- `status`: Active, On Leave, Inactive
+- `address`: Residential address
 
-## Run the project
+## API Endpoints
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/employees/` | List all employees (supports `?search=`, `?department=`, `?status=`) |
+| GET | `/api/employees/<id>/` | Retrieve individual employee details |
+| POST | `/api/employees/` | Create a new employee |
+| PUT | `/api/employees/<id>/` | Replace/update an existing employee |
+| PATCH | `/api/employees/<id>/` | Partially update an employee record |
+| DELETE | `/api/employees/<id>/` | Delete an employee record |
 
-### 1. Open the project folder in VS Code
-Open `employee-management-system`.
-
-### 2. Create virtual environment
-Windows PowerShell:
-```powershell
-python -m venv venv
-.\venv\Scripts\Activate.ps1
+## Sample API JSON Payload
+```json
+{
+  "employee_id": "EMP001",
+  "employee_name": "Rahul Sharma",
+  "email": "rahul.sharma@example.com",
+  "phone_number": "9876543210",
+  "department": "IT",
+  "designation": "Senior Data Analyst",
+  "employment_type": "Full Time",
+  "joining_date": "2026-01-10",
+  "salary": "55000.00",
+  "status": "Active",
+  "address": "Coimbatore, Tamil Nadu"
+}
 ```
 
-Command Prompt:
-```cmd
-python -m venv venv
-venv\Scripts\activate
-```
+## How to Run Locally
 
-### 3. Install dependencies
+### 1. Set up Virtual Environment
 ```bash
-pip install -r requirements.txt
+python -m venv venv
+# On Windows PowerShell:
+.\venv\Scripts\Activate.ps1
+# On Linux/macOS:
+source venv/bin/activate
 ```
 
-### 4. Apply migrations
+### 2. Install Dependencies
+```bash
+pip install -r backend/requirements.txt
+```
+
+### 3. Run Database Migrations
 ```bash
 python manage.py migrate
 ```
 
-The included database already contains sample employees. If `db.sqlite3` is deleted, the seed migration recreates them.
-
-### 5. Start the server
+### 4. Start Local Development Server
 ```bash
 python manage.py runserver
 ```
+- Local API Base: `http://127.0.0.1:8000/api/employees/`
+- Local Admin: `http://127.0.0.1:8000/admin/`
 
-Open:
-`http://127.0.0.1:8000/`
-
-API:
-`http://127.0.0.1:8000/api/employees/`
-
-Admin:
-`http://127.0.0.1:8000/admin/`
-
-## API endpoints
-| Method | Endpoint | Purpose |
-|---|---|---|
-| GET | `/api/employees/` | List employees |
-| POST | `/api/employees/` | Create employee |
-| GET | `/api/employees/<id>/` | View employee |
-| PUT | `/api/employees/<id>/` | Replace employee |
-| PATCH | `/api/employees/<id>/` | Partially update |
-| DELETE | `/api/employees/<id>/` | Delete employee |
-
-## Example JSON
-```json
-{
-  "employee_id": "EMP1009",
-  "employee_name": "Meena Raj",
-  "email": "meena.raj@example.com",
-  "phone_number": "9876543299",
-  "department": "Human Resources",
-  "designation": "HR Executive",
-  "employment_type": "Full Time",
-  "joining_date": "2026-06-15",
-  "salary": "42000.00",
-  "status": "Active",
-  "address": "Karur, Tamil Nadu"
-}
-```
-
-## Test
-```bash
-python manage.py test
-```
-
-## GitHub
-```bash
-git init
-git add .
-git commit -m "Initial Employee Management System"
-git branch -M main
-git remote add origin YOUR_GITHUB_REPOSITORY_URL
-git push -u origin main
-```
+## Deployment Details
+- **GitHub Pages Frontend**: `https://kaviyashree24-dev.github.io/Employee-management-system/`
+- **Render Backend**: `https://employee-management-system-62xp.onrender.com`
+  - Root Directory: `backend`
+  - Build Command: `pip install -r requirements.txt && python manage.py migrate`
+  - Start Command: `gunicorn ems_project.wsgi:application --bind 0.0.0.0:$PORT`

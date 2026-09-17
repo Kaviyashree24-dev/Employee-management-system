@@ -66,4 +66,11 @@ class EmployeeSerializer(serializers.ModelSerializer):
             )
 
         return value
-    
+
+    def validate_joining_date(self, value):
+        from datetime import date
+        if value > date.today():
+            raise serializers.ValidationError(
+                "Joining date cannot be in the future."
+            )
+        return value

@@ -7,9 +7,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # In production, load this from an environment variable instead.
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'dev-only-secret-key-change-me')
 
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'employee-management-system-62xp.onrender.com']
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'employee-management-system-62xp.onrender.com',
+    '.onrender.com',
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -83,15 +88,18 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS - allow the frontend (served separately, e.g. via Live Server) to call the API
+# CORS Configuration
 CORS_ALLOWED_ORIGINS = [
+    "https://kaviyashree24-dev.github.io",
     "http://localhost:5500",
     "http://127.0.0.1:5500",
     "http://localhost:5501",
     "http://127.0.0.1:5501",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
 ]
-CORS_ALLOW_ALL_ORIGINS = DEBUG  # convenient for local dev; tighten before submission if asked
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
+
