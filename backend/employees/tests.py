@@ -8,6 +8,7 @@ from .models import Employee
 class EmployeeAPITests(APITestCase):
     def setUp(self):
         self.list_url = reverse("employee-list")
+        self.initial_count = Employee.objects.count()
         self.employee = Employee.objects.create(
             employee_id="TEST1001",
             employee_name="Test Employee",
@@ -40,12 +41,12 @@ class EmployeeAPITests(APITestCase):
     def test_get_employees(self):
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data), self.initial_count + 1)
 
     def test_create_employee(self):
         response = self.client.post(self.list_url, self.payload(), format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Employee.objects.count(), 2)
+        self.assertEqual(Employee.objects.count(), self.initial_count + 2)
 
     def test_duplicate_employee_id_rejected(self):
         response = self.client.post(self.list_url, self.payload(employee_id="TEST1001"), format="json")
@@ -90,4 +91,4 @@ class EmployeeAPITests(APITestCase):
         url = reverse("employee-detail", args=[self.employee.id])
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(Employee.objects.count(), 0)
+        self.assertEqual(Employee.objects.count(), self.initial_count)
