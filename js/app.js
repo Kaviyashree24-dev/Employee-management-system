@@ -1,8 +1,9 @@
 // ==========================================
 // Employee Management System
-// Django REST API - Render Backend
+// JavaScript - CRUD Operations
 // ==========================================
 
+// Live Django REST API on Render
 const API_BASE =
   "https://employee-management-system-62xp.onrender.com/api/employees/";
 
@@ -39,6 +40,7 @@ let searchDebounce = null;
 // ==========================================
 
 function showMessage(text, type = "success") {
+
   if (!messageBox) return;
 
   messageBox.textContent = text;
@@ -56,6 +58,7 @@ function showMessage(text, type = "success") {
 // ==========================================
 
 function buildQuery() {
+
   const params = new URLSearchParams();
 
   if (searchInput && searchInput.value.trim()) {
@@ -70,9 +73,13 @@ function buildQuery() {
     params.set("status", statusFilter.value);
   }
 
-  const query = params.toString();
+  const queryString = params.toString();
 
-  return query ? `${API_BASE}?${query}` : API_BASE;
+  if (queryString) {
+    return `${API_BASE}?${queryString}`;
+  }
+
+  return API_BASE;
 }
 
 
@@ -81,7 +88,9 @@ function buildQuery() {
 // ==========================================
 
 async function loadEmployees() {
+
   try {
+
     const response = await fetch(buildQuery());
 
     if (!response.ok) {
@@ -97,7 +106,7 @@ async function loadEmployees() {
     console.error("Load error:", error);
 
     showMessage(
-      "Could not connect to the server.",
+      "Could not reach the server.",
       "error"
     );
   }
@@ -114,6 +123,9 @@ function renderTable(employees) {
 
   tableBody.innerHTML = "";
 
+
+  // No employees
+
   if (!employees || employees.length === 0) {
 
     if (emptyState) {
@@ -123,10 +135,13 @@ function renderTable(employees) {
     return;
   }
 
+
   if (emptyState) {
     emptyState.classList.add("hidden");
   }
 
+
+  // Display employees
 
   employees.forEach((employee) => {
 
@@ -135,11 +150,7 @@ function renderTable(employees) {
     row.innerHTML = `
 
       <td>
-        ${escapeHtml(employee.employee_id)}
-      </td>
-
-      <td>
-        ${escapeHtml(employee.employee_name)}
+        ${escapeHtml(employee.full_name)}
       </td>
 
       <td>
@@ -159,7 +170,7 @@ function renderTable(employees) {
       </td>
 
       <td>
-        ${escapeHtml(employee.joining_date)}
+        ${escapeHtml(employee.date_of_joining)}
       </td>
 
       <td>
@@ -183,7 +194,7 @@ function renderTable(employees) {
         <button
           class="delete-btn"
           data-id="${employee.id}"
-          data-name="${escapeHtml(employee.employee_name)}">
+          data-name="${escapeHtml(employee.full_name)}">
           Delete
         </button>
 
@@ -196,7 +207,9 @@ function renderTable(employees) {
   });
 
 
-  // EDIT BUTTONS
+  // ========================================
+  // EDIT BUTTON
+  // ========================================
 
   document.querySelectorAll(".edit-btn").forEach((button) => {
 
@@ -209,7 +222,9 @@ function renderTable(employees) {
   });
 
 
-  // DELETE BUTTONS
+  // ========================================
+  // DELETE BUTTON
+  // ========================================
 
   document.querySelectorAll(".delete-btn").forEach((button) => {
 
@@ -238,12 +253,11 @@ function escapeHtml(value) {
   div.textContent = value ?? "";
 
   return div.innerHTML;
-
 }
 
 
 // ==========================================
-// CREATE - OPEN ADD MODAL
+// CREATE - OPEN ADD EMPLOYEE MODAL
 // ==========================================
 
 function openAddModal() {
@@ -257,7 +271,6 @@ function openAddModal() {
   formError.classList.add("hidden");
 
   employeeModal.classList.remove("hidden");
-
 }
 
 
@@ -283,7 +296,7 @@ async function openEditModal(id) {
     modalTitle.textContent = "Edit Employee";
 
 
-    // Store database ID
+    // Database ID
 
     document.getElementById("employeeId").value =
       employee.id;
@@ -291,21 +304,21 @@ async function openEditModal(id) {
 
     // Employee ID
 
-    const employeeIdField =
+    const employeeCode =
       document.getElementById("employeeCode");
 
-    if (employeeIdField) {
+    if (employeeCode) {
 
-      employeeIdField.value =
-        employee.employee_id;
+      employeeCode.value =
+        employee.employee_id || "";
 
     }
 
 
-    // Employee name
+    // Full name
 
     document.getElementById("fullName").value =
-      employee.employee_name || "";
+      employee.full_name || "";
 
 
     // Email
@@ -345,10 +358,10 @@ async function openEditModal(id) {
     }
 
 
-    // Joining date
+    // Date of joining
 
     document.getElementById("dateOfJoining").value =
-      employee.joining_date || "";
+      employee.date_of_joining || "";
 
 
     // Salary
@@ -415,15 +428,18 @@ employeeForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
 
+  // Database ID for update
+
   const databaseId =
     document.getElementById("employeeId").value;
 
 
-  // Employee ID field
+  // ========================================
+  // EMPLOYEE ID
+  // ========================================
 
   const employeeCodeField =
     document.getElementById("employeeCode");
-
 
   let employeeCode = "";
 
@@ -435,8 +451,7 @@ employeeForm.addEventListener("submit", async (event) => {
   }
 
 
-  // If employee ID field does not exist,
-  // generate one automatically.
+  // Generate ID if empty
 
   if (!employeeCode) {
 
@@ -447,14 +462,15 @@ employeeForm.addEventListener("submit", async (event) => {
 
 
   // ========================================
-  // PAYLOAD
+  // EMPLOYEE DATA
   // ========================================
 
   const payload = {
 
-    employee_id: employeeCode,
+    employee_id:
+      employeeCode,
 
-    employee_name:
+    full_name:
       document.getElementById("fullName").value.trim(),
 
     email:
@@ -474,7 +490,7 @@ employeeForm.addEventListener("submit", async (event) => {
         ? document.getElementById("employmentType").value
         : "Full Time",
 
-    joining_date:
+    date_of_joining:
       document.getElementById("dateOfJoining").value,
 
     salary:
@@ -522,7 +538,7 @@ employeeForm.addEventListener("submit", async (event) => {
 
 
     // ======================================
-    // ERROR RESPONSE
+    // ERROR
     // ======================================
 
     if (!response.ok) {
@@ -541,7 +557,10 @@ employeeForm.addEventListener("submit", async (event) => {
       }
 
 
-      console.error("Server error:", errorData);
+      console.error(
+        "Server error:",
+        errorData
+      );
 
 
       const firstError =
@@ -566,7 +585,6 @@ employeeForm.addEventListener("submit", async (event) => {
       formError.classList.remove("hidden");
 
       return;
-
     }
 
 
@@ -591,7 +609,11 @@ employeeForm.addEventListener("submit", async (event) => {
 
   } catch (error) {
 
-    console.error("Save error:", error);
+    console.error(
+      "Save error:",
+      error
+    );
+
 
     formError.textContent =
       "Network error. Please check the server.";
@@ -612,13 +634,13 @@ function openDeleteModal(id, name) {
   pendingDeleteId = id;
 
 
-  const text =
+  const deleteText =
     document.getElementById("deleteConfirmText");
 
 
-  if (text) {
+  if (deleteText) {
 
-    text.textContent =
+    deleteText.textContent =
       `Are you sure you want to delete ${name}?`;
 
   }
@@ -650,7 +672,9 @@ confirmDeleteBtn.addEventListener(
   "click",
   async () => {
 
-    if (!pendingDeleteId) return;
+    if (!pendingDeleteId) {
+      return;
+    }
 
 
     try {
@@ -669,7 +693,9 @@ confirmDeleteBtn.addEventListener(
         response.status !== 204
       ) {
 
-        throw new Error("Delete failed");
+        throw new Error(
+          "Delete failed"
+        );
 
       }
 
